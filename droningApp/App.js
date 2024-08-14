@@ -4,17 +4,17 @@ import AppNavigator from './src/navigation/AppNavigator';
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from 'react';
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 
 export default function App() {
-  useEffect(() => {
-    const hideSplashScreen=async ()=>{
-      await SplashScreen.hideAsync()
+  // useEffect(() => {
+  //   const hideSplashScreen=async ()=>{
+  //     await SplashScreen.hideAsync()
       
-    }
-    hideSplashScreen();
-  }, [])
+  //   }
+  //   hideSplashScreen();
+  // }, [])
   
   return (
     // <View style={styles.container}>
