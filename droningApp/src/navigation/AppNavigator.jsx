@@ -5,9 +5,11 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import RequestScreen from '../screens/RequestScreen';
-
+ import AddEditDroneScreen from '../screens/AddEditDroneScreen';
+ 
  import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ConfirmationScreen from '../screens/ConfirmationScreen';
+import AdminPanelScreen from '../screens/AdminPanelScreen';
 
 const Stack=createNativeStackNavigator()
 
@@ -17,6 +19,8 @@ const AppNavigator = () => {
       <Stack.Navigator 
       screenOptions={{headerShown:false}}
       >
+          <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
+          <Stack.Screen name="AddEditDrone" component={AddEditDroneScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen}/>
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="Register" component={RegisterScreen}/>
@@ -24,7 +28,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Home" component={HomeScreen}/>
         <Stack.Screen name="Request" component={RequestScreen}/>
         <Stack.Screen name="Confirmation" component={ConfirmationScreen}/>
-
+        {/* <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
+        <Stack.Screen name="AddEditDrone" component={AddEditDroneScreen} /> */}
         {/* <Stack.Screen name="Login" component={LoginScreen}/> */}
  
         {/* <Stack.Screen name="Map" component={MapScreen} />
