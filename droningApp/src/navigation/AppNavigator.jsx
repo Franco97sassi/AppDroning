@@ -4,9 +4,10 @@ import LoginScreen from '../screens/LoginScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-import SolicitudScreen from '../screens/SolicitudScreen';
+import RequestScreen from '../screens/RequestScreen';
 
  import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ConfirmationScreen from '../screens/ConfirmationScreen';
 
 const Stack=createNativeStackNavigator()
 
@@ -21,7 +22,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Register" component={RegisterScreen}/>
 
         <Stack.Screen name="Home" component={HomeScreen}/>
-        <Stack.Screen name="Solicitud" component={SolicitudScreen}/>
+        <Stack.Screen name="Request" component={RequestScreen}/>
+        <Stack.Screen name="Confirmation" component={ConfirmationScreen}/>
 
         {/* <Stack.Screen name="Login" component={LoginScreen}/> */}
  

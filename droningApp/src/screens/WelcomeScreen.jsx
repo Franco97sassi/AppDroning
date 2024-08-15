@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
   container:{
     flex:1,
     // backgroundColor:"green",
-       
+    paddingHorizontal:30,
+
        paddingTop: Constants.statusBarHeight  ,
 
   },

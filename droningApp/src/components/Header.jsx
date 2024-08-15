@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     // backgroundColor: "red",
-    height: "12%",
+    height: "12%", 
+
   },
   leftSpace: {
     flex: 1,
