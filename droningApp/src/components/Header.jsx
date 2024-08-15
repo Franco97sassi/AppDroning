@@ -1,8 +1,11 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import Constants from "expo-constants";
+import { useNavigation } from '@react-navigation/native'
 
-const Header = ({ underline, text ,navigation}) => {
+const Header = ({ underline, text  }) => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={styles.leftSpace}></View>

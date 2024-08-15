@@ -4,6 +4,7 @@ import LoginScreen from '../screens/LoginScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import SolicitudScreen from '../screens/SolicitudScreen';
 
  import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -20,6 +21,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Register" component={RegisterScreen}/>
 
         <Stack.Screen name="Home" component={HomeScreen}/>
+        <Stack.Screen name="Solicitud" component={SolicitudScreen}/>
 
         {/* <Stack.Screen name="Login" component={LoginScreen}/> */}
  
