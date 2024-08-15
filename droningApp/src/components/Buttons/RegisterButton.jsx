@@ -9,7 +9,7 @@ const RegisterButton = ({text   }) => {
     <View style={styles.container}>
 <TouchableOpacity style={styles.buttonStyleAccount}   onPress={() => navigation.navigate('Register')}  >
   <Text style={styles.textButtonAccount}>
-    {text}
+    {/* {text} */} Registrarse
   </Text>
 </TouchableOpacity>  
   </View>

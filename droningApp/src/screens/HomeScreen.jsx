@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView, Platform, Keyboard, Dimensions } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from "expo-constants";
@@ -12,16 +12,36 @@ const HomeScreen = () => {
   const [traveledPath, setTraveledPath] = useState([]);
   const [remainingPath, setRemainingPath] = useState([]);
   const [status, setStatus] = useState('Esperando');
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardSpace(event.endCoordinates.height);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardSpace(0);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const handleRequestPress = async () => {
     const startCoords = droneCoords || await getCurrentLocation();
     const pickupCoords = await geocodeAddress(pickupAddress);
     const deliveryCoords = await geocodeAddress(deliveryAddress);
 
-     setStatus('Recogiendo');
+    if (!startCoords || !pickupCoords || !deliveryCoords) {
+      alert('No se pudieron obtener todas las coordenadas. Por favor, verifica las direcciones.');
+      return;
+    }
+
+    setStatus('Recogiendo');
     moveToCoords(startCoords, pickupCoords, () => {
-       setStatus('En camino');
+      setStatus('En camino');
       moveToCoords(pickupCoords, deliveryCoords, () => {
         setStatus('Entregado');
       });
@@ -33,8 +53,8 @@ const HomeScreen = () => {
     const stepLat = (endCoords.latitude - startCoords.latitude) / steps;
     const stepLng = (endCoords.longitude - startCoords.longitude) / steps;
     let currentStep = 0;
-    setTraveledPath([startCoords]);  
-    setRemainingPath([startCoords, endCoords]);  
+    setTraveledPath([startCoords]);
+    setRemainingPath([startCoords, endCoords]);
 
     const interval = setInterval(() => {
       if (currentStep < steps) {
@@ -50,7 +70,7 @@ const HomeScreen = () => {
         clearInterval(interval);
         onComplete();
       }
-    }, 100); // Cambiado a 200 ms para un movimiento más lento
+    }, 100); // Ajusta el intervalo según sea necesario
   };
 
   const getCurrentLocation = async () => {
@@ -81,77 +101,84 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.statusBar}>Estado: {status}</Text>
-      <View style={styles.inputsContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Pickup Address"
-          value={pickupAddress}
-          onChangeText={setPickupAddress}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Delivery Address"
-          value={deliveryAddress}
-          onChangeText={setDeliveryAddress}
-        />
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Constants.statusBarHeight}
+    >
+      <View style={styles.innerContainer}>
+        {status !== 'Esperando' && (
+          <Text style={styles.statusBar}>Estado: {status}</Text>
+        )}
+        <View style={styles.inputsContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Ingresar dirección de recogida"
+            value={pickupAddress}
+            onChangeText={setPickupAddress}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Ingresar dirección de entrega"
+            value={deliveryAddress}
+            onChangeText={setDeliveryAddress}
+          />
+        </View>
 
-      <View style={styles.mapContainer}>
-        <MapView
-          style={StyleSheet.absoluteFillObject}
-          initialRegion={{
-            latitude: -32.94682, 
-            longitude: -60.63932,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        >
-          {droneCoords && (
-            <>
-              <Marker coordinate={droneCoords}>
-                <Image
-                  source={require('../../assets/images/drones.png')}
-                  style={styles.dronImage}
-                  resizeMode="contain"
+        <View style={[styles.mapContainer, { height: Dimensions.get('window').height - keyboardSpace - 100 }]}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: -32.94682, 
+              longitude: -60.63932,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          >
+            {droneCoords && (
+              <>
+                <Marker coordinate={droneCoords}>
+                  <Image
+                    source={require('../../assets/images/drones.png')}
+                    style={styles.dronImage}
+                    resizeMode="contain"
+                  />
+                </Marker>
+
+                <Polyline
+                  coordinates={traveledPath}
+                  strokeColor="red"
+                  strokeWidth={6}
                 />
-              </Marker>
+                <Polyline
+                  coordinates={remainingPath}
+                  strokeColor="blue"
+                  strokeWidth={6}
+                />
+              </>
+            )}
+          </MapView>
 
-               <Polyline
-                coordinates={traveledPath}
-                strokeColor="red"  
-                strokeWidth={6}
-              />
-              <Polyline
-                coordinates={remainingPath}
-                strokeColor="blue"  
-                strokeWidth={6}
-              />
-            </>
-          )}
-        </MapView>
-
-        
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => {
-            if (status === 'Entregado') {
-              navigation.navigate('Request', {
-                pickupAddress: pickupAddress,
-                deliveryAddress: deliveryAddress,
-              });            } else {
-              handleRequestPress();  
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>
-            {status === 'Entregado' ? 'Pagar' : 'Solicitar'}
-          </Text>
-        </TouchableOpacity>
-
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => {
+              if (status === 'Entregado') {
+                navigation.navigate('Request', {
+                  pickupAddress: pickupAddress,
+                  deliveryAddress: deliveryAddress,
+                });            
+              } else {
+                handleRequestPress();  
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>
+              {status === 'Entregado' ? 'Pagar' : 'Solicitar'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -162,12 +189,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: Constants.statusBarHeight,
   },
+  innerContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   statusBar: {
     backgroundColor: '#4682B4',
     color: 'white',
     paddingVertical: 10,
     textAlign: 'center',
     fontWeight: 'bold',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1, // Asegura que la barra de estado esté encima de otros elementos
   },
   inputsContainer: {
     flex: 1,
@@ -183,8 +219,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   mapContainer: {
-    flex: 3,
+    flex: 1,
     position: 'relative',
+    width: '100%',
+  },
+  map: {
+    flex: 1,
   },
   dronImage: {
     width: 40,
@@ -202,6 +242,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
+    zIndex: 1, // Asegura que el botón esté encima de otros elementos
   },
   buttonText: {
     color: 'white',

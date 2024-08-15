@@ -1,16 +1,32 @@
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import Header from '../components/Header'
 import Constants from "expo-constants";
 import RegisterButton from '../components/Buttons/RegisterButton';
 import LoginButton from '../components/Buttons/LoginButton';
+ import GoogleButton from '../components/Buttons/GoogleButton';
+ import FacebookButton from '../components/Buttons/FacebookButton';
 
+import { auth } from '../firebase/firebaseConfig'; // Asegúrate de que la configuración de Firebase esté correcta
+import { signInWithEmailAndPassword } from 'firebase/auth';
 const LoginScreen = (  ) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert('Success', 'Logged in successfully');
+      navigation.navigate('Home'); // Cambia 'Home' por la pantalla a la que desees navegar después del login
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
   return (
     <View style={styles.container}>
       <Header text="Skip"/>
       <View style={styles.titleSection}>
-      <Text style={styles.title}>Login to your Account</Text>
+      <Text style={styles.title}>Iniciar Sesión a tu cuenta</Text>
       <Text style={styles.subtitle}>
            Good to see you again, enter your details below to continue ordering
          </Text>
@@ -18,12 +34,18 @@ const LoginScreen = (  ) => {
       </View>
       <View style={styles.inputsSection}>
         <View>  
-      <Text style={styles.inputTitle}>Email Address</Text>
-      <TextInput style={styles.inputStyle} placeholder="Enter Email" />
-      </View>
+      <Text style={styles.inputTitle}> Email</Text>
+      <TextInput
+            style={styles.inputStyle}
+            placeholder="Entrar Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+                </View>
       <View >
-         <Text style={styles.inputTitle}>Password</Text>
-         <TextInput style={styles.inputStyle} placeholder="Enter Password" />
+         <Text style={styles.inputTitle}>Contraseña</Text>
+         <TextInput style={styles.inputStyle} placeholder="Entrar Contraseña" />
        </View>
        <View>
 
@@ -43,7 +65,8 @@ const LoginScreen = (  ) => {
 
          {/* <Text style={styles.textGoogle}> Sign in with Google</Text>
        </Pressable> */}
-       <RegisterButton text="Sign in with Google" />
+       <FacebookButton />
+       <GoogleButton/>
 
 <RegisterButton  text="Create an Account"   />
 <LoginButton   />

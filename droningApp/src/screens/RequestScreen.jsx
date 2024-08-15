@@ -76,7 +76,7 @@ const RequestScreen = ({ route }) => {
           </View>
         </View>
         <View style={styles.details}>
-          <Text style={styles.subtitle}>Punto De Recogida</Text>
+          <Text style={styles.subtitle}>Punto De Entrega</Text>
           <View style={styles.inputContainer}>
             <Text style={styles.subtitleAddress}>{deliveryAddress}</Text>
           </View>
