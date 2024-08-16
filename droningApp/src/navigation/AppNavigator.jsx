@@ -12,7 +12,7 @@ import ConfirmationScreen from '../screens/ConfirmationScreen';
 import FollowingScreen from '../screens/FollowingScreen';
 
 import AdminPanelScreen from '../screens/AdminPanelScreen';
-
+import DrawerNavigator from './DrawerNavigator';
 const Stack=createNativeStackNavigator()
 
 const AppNavigator = () => {
@@ -21,7 +21,8 @@ const AppNavigator = () => {
       <Stack.Navigator 
       screenOptions={{headerShown:false}}
       >
-          
+                  <Stack.Screen name="Drawer" component={DrawerNavigator} />
+
         {/* <Stack.Screen name="Welcome" component={WelcomeScreen}/> */}
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="Register" component={RegisterScreen}/>
