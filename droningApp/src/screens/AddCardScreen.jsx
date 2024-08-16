@@ -1,4 +1,3 @@
-// screens/AddCard.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 
@@ -16,12 +15,12 @@ const AddCard = () => {
 
   return (
     <View style={styles.container}>
-      {/* Puedes descomentar la imagen si la necesitas */}
       {/* <Image
         source={require('../../assets/images/credit-card.png')} // Cambia la ruta según tu imagen
         style={styles.cardImage}
       /> */}
       <Text style={styles.title}>Agregar Tarjeta</Text>
+      <Image source={require('../../assets/images/cardcredit.png')} resizeMode="contain"  style={styles.methodImage} />
 
       <TextInput
         style={styles.input}
@@ -71,27 +70,21 @@ const AddCard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Centra verticalmente
-    alignItems: 'center', // Centra horizontalmente
+    justifyContent: 'center', // Centra el contenido verticalmente
+    alignItems: 'center', // Centra el contenido horizontalmente
     padding: 16,
     backgroundColor: '#f5f5f5',
   },
-  cardImage: {
-    width: '100%',
-    height: 150,
-    marginBottom: 20,
-    resizeMode: 'contain',
-  },
+ 
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center', // Centra el texto
   },
   input: {
     height: 50,
-    width: '100%', // Asegura que el input ocupe todo el ancho disponible
-    maxWidth: 400, // Ancho máximo para evitar que el input se estire demasiado en pantallas grandes
+    width: '100%', // Hace que el input ocupe todo el ancho disponible
+    maxWidth: 400, // Limita el ancho máximo del input
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
@@ -104,13 +97,18 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    width: '100%', // Asegura que el botón ocupe todo el ancho disponible
-    maxWidth: 400, // Ancho máximo para evitar que el botón se estire demasiado en pantallas grandes
+    width: '100%', // Hace que el botón ocupe todo el ancho disponible
+    maxWidth: 400, // Limita el ancho máximo del botón
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
   },
+  methodImage:{
+    width:300,
+    height:250,
+    marginVertical:10, 
+  }
 });
 
 export default AddCard;

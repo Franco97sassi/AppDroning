@@ -149,7 +149,7 @@
 //   }
 // });
 import React, { useState, useEffect } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, View, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, View, Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
 import Constants from "expo-constants";
 import RegisterButton from '../components/Buttons/RegisterButton';
@@ -241,6 +241,9 @@ const LoginScreen = () => {
             <Image style={styles.logo} source={require('../assets/images/googleIcon.png')}/>
             <Image style={styles.logo} source={require('../assets/images/facebook.png')}/>
           </View>
+          <TouchableOpacity onPress={() => navigation.navigate('RecoveryPassword')}>
+            <Text style={styles.recoverPasswordText}>Recuperar Contraseña</Text>
+          </TouchableOpacity>
         </View>
       )}
       <View style={styles.empty}></View>
@@ -298,5 +301,10 @@ const styles = StyleSheet.create({
   },
   empty: {
     height: "20%"
-  }
+  },
+  recoverPasswordText: {
+     
+    color: "#1c1c1c",
+    textDecorationLine: "underline"
+  },
 });

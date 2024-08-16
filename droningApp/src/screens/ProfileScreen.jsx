@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('Juan Pérez');
+  const [name, setName] = useState('Franco Sassi');
   const [phone, setPhone] = useState('+54 9 11 1234-5678');
 
   useEffect(() => {
@@ -52,7 +52,6 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Información Personal */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Información Personal</Text>
         <Text style={styles.infoText}>Correo: {email}</Text>
@@ -71,34 +70,7 @@ const ProfileScreen = () => {
         <Button title="Guardar" onPress={handleSave} />
       </View>
 
-      {/* Opciones de Pago */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Opciones de Pago</Text>
-        <TouchableOpacity style={styles.optionButton}>
-          <Text style={styles.optionText}>Ver Métodos de Pago Guardados</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleAddPaymentMethod} style={styles.optionButton}>
-          <Text style={styles.optionText}>Agregar Métodos de Pago</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Historial de Servicios */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Historial de Servicios</Text>
-        <TouchableOpacity onPress={handleViewHistory} style={styles.optionButton}>
-          <Text style={styles.optionText}>Ver Historial</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Ajustes de Notificaciones */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ajustes de Notificaciones</Text>
-        <TouchableOpacity onPress={handleNotificationSettings} style={styles.optionButton}>
-          <Text style={styles.optionText}>Gestionar Notificaciones</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Botón de Cerrar Sesión */}
+      
       <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
         <Text style={styles.logoutText}>Cerrar Sesión</Text>
       </TouchableOpacity>
@@ -108,26 +80,36 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
   section: {
+    width: '100%',
+    maxWidth: 400,
     marginBottom: 30,
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
     elevation: 2,
+    alignItems: 'center', // Centrar los elementos dentro de la sección
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   infoText: {
     fontSize: 16,
     marginBottom: 10,
+    textAlign: 'center',
   },
   input: {
+    width: '100%',
+    maxWidth: 300,
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
@@ -139,6 +121,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     marginBottom: 10,
+    width: '100%',
+    maxWidth: 300,
+    alignItems: 'center',
   },
   optionText: {
     color: '#fff',
@@ -148,11 +133,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#dc3545',
     padding: 15,
     borderRadius: 5,
+    width: '100%',
+    maxWidth: 300,
     alignItems: 'center',
   },
   logoutText: {
     color: '#fff',
     fontSize: 16,
+  },
+  buttonContainer: {
+    width: '100%',
+    maxWidth: 300,
+    marginBottom: 30,
+    alignItems: 'center',
   },
 });
 
