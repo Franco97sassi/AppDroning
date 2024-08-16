@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { firestore } from '../firebase/firebaseConfig'; // Ruta a tu configuración de Firebase
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const AddEditDroneScreen = ({ route, navigation }) => {
   const { drone } = route.params || {};
@@ -11,24 +11,50 @@ const AddEditDroneScreen = ({ route, navigation }) => {
   const [isInRoute, setIsInRoute] = useState(drone ? drone.isInRoute : false);
 
   const handleSave = async () => {
-    if (drone) {
-      const droneRef = doc(firestore, 'drones', drone.id);
-      await updateDoc(droneRef, { latitude: parseFloat(latitude), longitude: parseFloat(longitude), hasBattery, isInRoute });
-    } else {
-      await addDoc(collection(firestore, 'drones'), {
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        hasBattery,
-        isInRoute,
-      });
+    try {
+      if (!latitude || !longitude) {
+        Alert.alert("Error", "Latitude and Longitude are required.");
+        return;
+      }
+
+      if (drone) {
+        // Editar un dron existente
+        const droneRef = doc(firestore, 'drones', drone.id);
+        const droneSnapshot = await getDoc(droneRef);
+        
+        if (droneSnapshot.exists()) {
+          await updateDoc(droneRef, {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            hasBattery,
+            isInRoute,
+          });
+          Alert.alert("Success", "Drone updated successfully!");
+        } else {
+          Alert.alert("Error", "Drone does not exist.");
+        }
+      } else {
+        // Agregar un nuevo dron
+        await addDoc(collection(firestore, 'drones'), {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+          hasBattery,
+          isInRoute,
+        });
+        Alert.alert("Success", "Drone added successfully!");
+      }
+
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error saving drone data: ", error);
+      Alert.alert("Error", "Failed to save drone data.");
     }
-    navigation.goBack();
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.form}>
-        <Text style={styles.title}> Panel Admin</Text>
+        <Text style={styles.title}>{drone ? "Edit Drone" : "Add Drone"}</Text>
         <TextInput
           style={styles.input}
           placeholder="Latitude"
@@ -62,14 +88,14 @@ const AddEditDroneScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Centra verticalmente
-    alignItems: 'center', // Centra horizontalmente
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 16,
   },
   form: {
-    width: '100%', // Ocupa el ancho completo del contenedor
-    maxWidth: 400, // Ancho máximo para evitar que sea demasiado ancho en pantallas grandes
-    alignItems: 'center', // Centra los elementos dentro del formulario
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
@@ -82,21 +108,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     marginBottom: 16,
-    width: '100%', // Ocupa el ancho completo del formulario
+    width: '100%',
     paddingHorizontal: 8,
   },
   statusContainer: {
-    flexDirection: 'column', // Alinea los elementos en una columna
-    width: '100%', // Ocupa el ancho completo del formulario
-    alignItems: 'center', // Centra los elementos dentro del contenedor
+    flexDirection: 'column',
+    width: '100%',
+    alignItems: 'center',
     marginBottom: 16,
   },
   statusItem: {
-    flexDirection: 'row', // Alinea los elementos en una fila
-    justifyContent: 'space-between', // Espacia los elementos
-    width: '80%', // Ocupa el 80% del ancho del formulario
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
     marginBottom: 16,
-    alignItems: 'center', // Centra los elementos verticalmente
+    alignItems: 'center',
   },
 });
 

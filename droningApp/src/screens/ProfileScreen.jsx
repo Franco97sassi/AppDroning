@@ -1,15 +1,59 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('Juan Pérez');
+  const [phone, setPhone] = useState('+54 9 11 1234-5678');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedEmail = await AsyncStorage.getItem('userEmail');
+        if (storedEmail) {
+          setEmail(storedEmail);
+        }
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      // Aquí podrías actualizar la información del usuario en un backend
+      console.log('Información guardada:', { name, phone });
+
+      // Puedes también guardar la información en AsyncStorage si es necesario
+      // await AsyncStorage.setItem('userName', name);
+      // await AsyncStorage.setItem('userPhone', phone);
+    } catch (error) {
+      console.error('Error saving user info:', error);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Información Personal */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Información Personal</Text>
-        <Text style={styles.infoText}>Nombre: Juan Pérez</Text>
-        <Text style={styles.infoText}>Correo: juan.perez@example.com</Text>
-        <Text style={styles.infoText}>Teléfono: +54 9 11 1234-5678</Text>
+        <Text style={styles.infoText}>Correo: {email}</Text>
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="Nombre"
+        />
+        <TextInput
+          style={styles.input}
+          value={phone}
+          onChangeText={setPhone}
+          placeholder="Teléfono"
+        />
+        <Button title="Guardar" onPress={handleSave} />
       </View>
 
       {/* Opciones de Pago */}
@@ -57,11 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 5,
+    elevation: 2,
   },
   sectionTitle: {
     fontSize: 18,
@@ -70,27 +110,34 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    marginBottom: 5,
+    marginBottom: 10,
+  },
+  input: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
   optionButton: {
-    paddingVertical: 10,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   optionText: {
+    color: '#fff',
     fontSize: 16,
-    color: '#007bff',
   },
   logoutButton: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: '#dc3545',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: 'center',
   },
   logoutText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 

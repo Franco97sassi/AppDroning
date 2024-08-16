@@ -21,7 +21,18 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "facebookAppId": "801a8301f82f375400c2b151c89381f2" 
+       }
+    },
+    "plugins": [
+      [
+        "expo-facebook",
+        {
+          "appId": "801a8301f82f375400c2b151c89381f2"
+        }
+      ]
+    ]
   }
 }

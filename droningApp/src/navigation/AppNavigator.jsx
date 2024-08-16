@@ -13,6 +13,7 @@ import FollowingScreen from '../screens/FollowingScreen';
 
 import AdminPanelScreen from '../screens/AdminPanelScreen';
 import DrawerNavigator from './DrawerNavigator';
+import ArrivalScreen from '../screens/ArrivalScreen';
 const Stack=createNativeStackNavigator()
 
 const AppNavigator = () => {
@@ -31,6 +32,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Request" component={RequestScreen}/>
         <Stack.Screen name="Confirmation" component={ConfirmationScreen}/>
         <Stack.Screen name="Following" component={FollowingScreen}/>
+        <Stack.Screen name="Arrival" component={ArrivalScreen}/>
 
         <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
         <Stack.Screen name="AddEditDrone" component={AddEditDroneScreen} /> 

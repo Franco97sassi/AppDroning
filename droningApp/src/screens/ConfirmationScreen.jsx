@@ -17,15 +17,18 @@ import { useNavigation } from "@react-navigation/native";
  
 const ConfirmationScreen = ({ route }) => {
     const [isChecked, setIsChecked] = useState(false);
-    const { pickupAddress, deliveryAddress } = route.params;
+    const { pickupAddress, deliveryAddress, arrivalTime } = route.params;
     const navigation = useNavigation();
     const handleCancel = () => {
       navigation.goBack(); // Regresar a la pantalla anterior
     };
     
     const handleConfirm = () => {
-      navigation.navigate('Following' );
-      
+      navigation.navigate('Following', {
+        pickupAddress: pickupAddress,
+        deliveryAddress: deliveryAddress, 
+      } );
+       
     };
   return (
     <View style={styles.container}>
@@ -48,7 +51,7 @@ const ConfirmationScreen = ({ route }) => {
         <View style={styles.details}>
            
           <Text style={styles.llegada}>Tiempo de llegada Estimado:</Text>
-           <Text style={styles.llegada}>15 minutos</Text>
+           <Text style={styles.llegada}> {arrivalTime}</Text>
         </View>
         <Text> </Text>
       </View>

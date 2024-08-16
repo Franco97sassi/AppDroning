@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Image, StyleSheet, Text, TextInput, View, Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import Header from '../components/Header';
 import Constants from "expo-constants";
 import RegisterButton from '../components/Buttons/RegisterButton';
 import LoginButton from '../components/Buttons/LoginButton';
 import { auth } from '../firebase/firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const handleRegister = async () => {
     if (password !== confirmPassword) {
@@ -27,17 +30,31 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <Header text="Skip" />
       <View style={styles.titleSection}>
         <Text style={styles.title}>Create an Account</Text>
-        <Text style={styles.subtitle}>
-          Welcome Friend, enter your details so let's get started in ordering food
-        </Text>
         <Text></Text>
       </View>
-      <View style={styles.inputsSection}>
+      <View style={[styles.inputsSection, { height: keyboardVisible ? "56%" : "33%" }]}>
         <View>
           <Text style={styles.inputTitle}>Email</Text>
           <TextInput
@@ -69,21 +86,18 @@ const RegisterScreen = ({ navigation }) => {
           />
         </View>
       </View>
-      <View style={styles.buttonsSection}>
-        {/* <Pressable
-          style={styles.googleLogin}
-          onPress={() => { /* Implement Google Sign-In logic here * / }}
-        >
-          <Image
-            source={require("../assets/google.png")}
-            style={styles.logoGoogle}
-          />
-          <Text style={styles.textGoogle}> Sign in with Google</Text>
-        </Pressable> */}
-        <RegisterButton text="Create an Account" onPress={handleRegister} />
-        <LoginButton onPress={() => navigation.navigate('Login')} />
-      </View>
-    </View>
+      {keyboardVisible ? (
+        <View style={styles.buttonsSection}>
+          <RegisterButton text="Create an Account" onPress={handleRegister} />
+        </View>
+      ) : (
+        <View style={styles.buttonsSection}>
+          <RegisterButton text="Create an Account" onPress={handleRegister} />
+          <LoginButton onPress={() => navigation.navigate('Login')} />
+        </View>
+      )}
+      <View style={styles.empty}></View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -95,7 +109,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30
   },
   titleSection: {
-    height: "17%",
+    height: "10%",
     justifyContent: "space-between"
   },
   title: {
@@ -112,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   buttonsSection: {
-    height: "38%",
+    height: "25%",
     justifyContent: "space-evenly",
     alignItems: "center"
   },
@@ -126,17 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingLeft: 23
   },
-  // Estilos para el botón de Google (descomentarlo y ajustarlo según sea necesario)
-  // googleLogin: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  // },
-  // logoGoogle: {
-  //   width: 24,
-  //   height: 24,
-  //   marginRight: 8,
-  // },
-  // textGoogle: {
-  //   fontSize: 16,
-  // }
+  empty: {
+    height: "20%"
+  }
 });

@@ -3,12 +3,12 @@ import React from 'react'
 import Constants from "expo-constants";
 import { useNavigation } from '@react-navigation/native'
  
-const LoginButton = ({ tomycount }) => {
+const LoginButton = ({ tomycount ,onPress   }) => {
   const navigation = useNavigation();
 
   return (
     <View> 
-       <TouchableOpacity style={styles.buttonStyleLogin}  onPress={() => navigation.navigate('Login')} >   
+       <TouchableOpacity style={styles.buttonStyleLogin} onPress={onPress}   >   
   <Text style={styles.textButtonLogin }    >
   Iniciar Sesión  {tomycount} 
 

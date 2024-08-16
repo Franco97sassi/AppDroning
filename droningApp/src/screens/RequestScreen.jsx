@@ -50,7 +50,7 @@ import { useNavigation } from "@react-navigation/native";
  
 const RequestScreen = ({ route }) => {
     const [isChecked, setIsChecked] = useState(false);
-    const { pickupAddress, deliveryAddress } = route.params;
+    const { pickupAddress, deliveryAddress,arrivalTime } = route.params;
     const navigation = useNavigation();
     const handleCancel = () => {
       navigation.goBack(); // Regresar a la pantalla anterior
@@ -60,9 +60,10 @@ const RequestScreen = ({ route }) => {
       navigation.navigate('Confirmation', {
         pickupAddress: pickupAddress,
         deliveryAddress: deliveryAddress,
+        arrivalTime: arrivalTime,
       });
-      
     };
+    
   return (
     <View style={styles.container}>
       <HeaderLogged />
@@ -84,7 +85,7 @@ const RequestScreen = ({ route }) => {
         <View style={styles.details}>
            
           <Text style={styles.llegada}>Tiempo de llegada Estimado:</Text>
-           <Text style={styles.llegada}>15 minutos</Text>
+           <Text style={styles.llegada}> {arrivalTime}</Text>
         </View>
         <Text> </Text>
       </View>
