@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('Juan Pérez');
   const [phone, setPhone] = useState('+54 9 11 1234-5678');
@@ -35,6 +36,20 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const navigation = useNavigation();
+
+  const handleAddPaymentMethod = () => {
+    navigation.navigate('PaymentMethods');
+  };
+
+  const handleNotificationSettings = () => {
+    navigation.navigate('Notifications');
+  };
+
+  const handleViewHistory = () => {
+    navigation.navigate('TravellingHistory');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Información Personal */}
@@ -62,15 +77,15 @@ const ProfileScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.optionButton}>
           <Text style={styles.optionText}>Ver Métodos de Pago Guardados</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}>
-          <Text style={styles.optionText}>Agregar Método de Pago</Text>
+        <TouchableOpacity onPress={handleAddPaymentMethod} style={styles.optionButton}>
+          <Text style={styles.optionText}>Agregar Métodos de Pago</Text>
         </TouchableOpacity>
       </View>
 
       {/* Historial de Servicios */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Historial de Servicios</Text>
-        <TouchableOpacity style={styles.optionButton}>
+        <TouchableOpacity onPress={handleViewHistory} style={styles.optionButton}>
           <Text style={styles.optionText}>Ver Historial</Text>
         </TouchableOpacity>
       </View>
@@ -78,7 +93,7 @@ const ProfileScreen = ({ navigation }) => {
       {/* Ajustes de Notificaciones */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ajustes de Notificaciones</Text>
-        <TouchableOpacity style={styles.optionButton}>
+        <TouchableOpacity onPress={handleNotificationSettings} style={styles.optionButton}>
           <Text style={styles.optionText}>Gestionar Notificaciones</Text>
         </TouchableOpacity>
       </View>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, Keyboard, Dimensions } from 'react-native';
-import MapView from 'react-native-maps';
+import { StyleSheet, TextInput, View, TouchableOpacity, Text, Keyboard, Dimensions, Image } from 'react-native';
+import MapView, { Polyline, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,9 @@ const HomeScreen = () => {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [status, setStatus] = useState('Esperando');
   const [arrivalTime, setArrivalTime] = useState(null);
+  const [pickupCoords, setPickupCoords] = useState(null);
+  const [deliveryCoords, setDeliveryCoords] = useState(null);
+  const [currentCoords, setCurrentCoords] = useState(null);
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const navigation = useNavigation();
 
@@ -28,6 +31,23 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
+    const getCurrentLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permiso para acceder a la ubicación denegado');
+        return;
+      }
+      let location = await Location.getCurrentPositionAsync({});
+      setCurrentCoords({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    };
+
+    getCurrentLocation();
+  }, []);
+
+  useEffect(() => {
     if (status === 'En camino') {
       const calculateEstimatedTime = async () => {
         const pickupCoords = await geocodeAddress(pickupAddress);
@@ -37,6 +57,9 @@ const HomeScreen = () => {
           alert('No se pudieron obtener todas las coordenadas. Por favor, verifica las direcciones.');
           return;
         }
+
+        setPickupCoords(pickupCoords);
+        setDeliveryCoords(deliveryCoords);
 
         const totalDistance = calculateDistance(pickupCoords, deliveryCoords);
         const averageSpeed = 50; // Velocidad promedio en metros por minuto
@@ -66,6 +89,9 @@ const HomeScreen = () => {
       alert('No se pudieron obtener todas las coordenadas. Por favor, verifica las direcciones.');
       return;
     }
+
+    setPickupCoords(pickupCoords);
+    setDeliveryCoords(deliveryCoords);
 
     setStatus('Recogiendo');
     setStatus('En camino');
@@ -107,9 +133,6 @@ const HomeScreen = () => {
   return (
     <View style={styles.container} keyboardVerticalOffset={Constants.statusBarHeight}>
       <View style={styles.innerContainer}>
-        {status !== 'Esperando' && (
-          <Text style={styles.statusBar}>Estado: {status}</Text>
-        )}
         {status === 'En camino' && arrivalTime !== null && (
           <Text style={styles.arrivalTime}>Tiempo de llegada: {formatTime(arrivalTime)}</Text>
         )}
@@ -139,7 +162,40 @@ const HomeScreen = () => {
               longitudeDelta: 0.0421,
             }}
           >
-            {/* Aquí puedes agregar cualquier marcador adicional o polilíneas si es necesario */}
+            {currentCoords && pickupCoords && (
+              <Polyline
+                coordinates={[
+                  { latitude: currentCoords.latitude, longitude: currentCoords.longitude },
+                  { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude }
+                ]}
+                strokeColor="red" // Color de la línea desde la ubicación actual hasta la recogida
+                strokeWidth={2}
+              />
+            )}
+            {pickupCoords && deliveryCoords && (
+              <Polyline
+                coordinates={[
+                  { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
+                  { latitude: deliveryCoords.latitude, longitude: deliveryCoords.longitude }
+                ]}
+                strokeColor="red" // Color de la línea desde la recogida hasta la entrega
+                strokeWidth={2}
+              />
+            )}
+            {pickupCoords && (
+              <Marker coordinate={pickupCoords} title="Recogida" />
+            )}
+            {deliveryCoords && (
+              <Marker coordinate={deliveryCoords} title="Entrega" />
+            )}
+            {currentCoords && (
+              <Marker
+                coordinate={currentCoords}
+                title="Ubicación Actual"
+                image={require('../../assets/images/drones.png')} // Ruta de la imagen del dron
+                style={styles.dron}
+              />
+            )}
           </MapView>
           
           {status !== 'Entregado' && (
@@ -180,18 +236,6 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  statusBar: {
-    backgroundColor: '#4682B4',
-    color: 'white',
-    paddingVertical: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-  },
   arrivalTime: {
     backgroundColor: '#4682B4',
     color: 'white',
@@ -208,40 +252,37 @@ const styles = StyleSheet.create({
     flex: 1,
     maxHeight: '35%',
     padding: 10,
-    justifyContent: 'space-evenly',
   },
   input: {
-    backgroundColor: '#fff',
-    height: 50,
-    borderRadius: 10,
-    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 10,
   },
   mapContainer: {
     flex: 1,
     position: 'relative',
-    width: '100%',
+  },
+  dron:{
+    width:50,
+    height:50
   },
   map: {
-    flex: 1,
-  },
-  dronImage: {
-    width: 50,
-    height: 50,
-    backgroundColor: 'transparent',
+    ...StyleSheet.absoluteFillObject,
   },
   button: {
     backgroundColor: '#4682B4',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 5,
     position: 'absolute',
     bottom: 10,
-    left: 10,
     right: 10,
-    alignItems: 'center',
+    elevation: 5,
   },
   buttonText: {
     color: 'white',
+    textAlign: 'center',
     fontWeight: 'bold',
   },
 });

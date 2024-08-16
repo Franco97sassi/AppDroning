@@ -18,21 +18,25 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "config": {
-        "facebookAppId": "801a8301f82f375400c2b151c89381f2" 
-       }
-    },
-    "plugins": [
-      [
-        "expo-facebook",
+      },
+      "intentFilters": [
         {
-          "appId": "801a8301f82f375400c2b151c89381f2"
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "myapp",
+              "host": "checkout",
+              "pathPrefix": "/congrats"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
-    ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png" 
+       
+    } 
+    
   }
 }

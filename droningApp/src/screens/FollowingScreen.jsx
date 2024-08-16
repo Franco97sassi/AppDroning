@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Dimensions, Image, Animated } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -24,7 +24,7 @@ const FollowingScreen = () => {
       const deliveryCoords = await geocodeAddress(deliveryAddress);
 
       if (startCoords && pickupCoords && deliveryCoords) {
-        setStatus('En camino');
+        setStatus('Buscando'); // Cambiar el estado a 'Buscando'
         const totalDistance = calculateDistance(pickupCoords, deliveryCoords);
         setDistance(totalDistance);
 
@@ -34,8 +34,9 @@ const FollowingScreen = () => {
         setRemainingTime(estimatedTime);
 
         moveToCoords(startCoords, pickupCoords, () => {
+          setStatus('En camino'); // Cambiar el estado a 'En camino'
           moveToCoords(pickupCoords, deliveryCoords, async () => {
-            setStatus('Entregado');
+            setStatus('Completado'); // Cambiar el estado a 'Completado'
             // Guarda los datos del viaje
             const travelData = {
               pickupAddress,
@@ -71,14 +72,31 @@ const FollowingScreen = () => {
           return prev - 1;
         });
       }, 1000); // Actualizar cada segundo
-
-      // Animar la barra de progreso
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: remainingTime * 1000,
-        useNativeDriver: false,
-      }).start();
     }
+
+    // Animar la barra de progreso según el estado
+    let progressEndValue;
+    switch (status) {
+      case 'Buscando':
+        progressEndValue = 1 / 3; // 33%
+        break;
+      case 'En camino':
+        progressEndValue = 2 / 3; // 67%
+        break;
+      case 'Completado':
+        progressEndValue = 1; // 100%
+        break;
+      default:
+        progressEndValue = 0;
+        break;
+    }
+
+    Animated.timing(progress, {
+      toValue: progressEndValue,
+      duration: 500, // Duración de la animación
+      useNativeDriver: false,
+    }).start();
+
     return () => clearInterval(timer);
   }, [status, remainingTime]);
 
@@ -158,6 +176,12 @@ const FollowingScreen = () => {
     }
   };
 
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2); // Limita a dos decimales
+    return `${mins},${secs}m`;
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -193,32 +217,26 @@ const FollowingScreen = () => {
         )}
       </MapView>
       <View style={styles.statusContainer}>
+        {/* Barra de Progreso */}
+        <View style={styles.progressBar}>
+          <Animated.View
+            style={[styles.progress, { width: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%']
+            }) }]}
+          />
+        </View>
         <Text style={styles.statusText}>Estado: {status}</Text>
-        {status === 'En camino' && remainingTime !== null && (
+        {(status === 'Buscando' || status === 'En camino' || status === 'Completado') && (
           <>
-            <Text style={styles.arrivalText}>Tiempo de llegada: {formatTime(remainingTime)}</Text>
-            <View style={styles.progressContainer}>
-              <Animated.View
-                style={[
-                  styles.progressBar,
-                  { width: `${progress.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0%', '100%']
-                    })}` }
-                ]}
-              />
-            </View>
+            {status === 'Buscando' || status === 'En camino' && remainingTime !== null && (
+              <Text style={styles.arrivalText}>Tiempo de llegada: {formatTime(remainingTime)}</Text>
+            )}
           </>
         )}
       </View>
     </View>
   );
-};
-
-const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
 const styles = StyleSheet.create({
@@ -234,33 +252,34 @@ const styles = StyleSheet.create({
   },
   statusContainer: {
     position: 'absolute',
-    top: 50, // Ajusta según la altura de la barra de estado del sistema
-    left: 0,
-    right: 0,
+    bottom: 10,
+    left: 10,
+    right: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Fondo semi-transparente
+    padding: 16,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    padding: 10,
   },
-  statusText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  arrivalText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: 'green',
-  },
-  progressContainer: {
-    height: 10,
+  progressBar: {
     width: '100%',
+    height: 10,
     backgroundColor: '#e0e0e0',
     borderRadius: 5,
     overflow: 'hidden',
-    marginTop: 10,
+    marginBottom: 8,
+    marginTop: 8,
   },
-  progressBar: {
+  progress: {
     height: '100%',
     backgroundColor: '#76c7c0',
+    borderRadius: 5,
+  },
+  statusText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  arrivalText: {
+    fontSize: 16,
+    color: 'gray',
   },
 });
 
