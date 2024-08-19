@@ -15,8 +15,7 @@ const Drawer = createDrawerNavigator();
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Home"
-      drawerContent={props => <CustomDrawerContent {...props} />}
+       drawerContent={props => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerTitle: '', // Oculta el título del header del drawer
         headerShown: true, // Muestra el ícono del menú hamburguesa
@@ -31,13 +30,7 @@ const DrawerNavigator = () => {
         },
       }}
     >
-      <Drawer.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          drawerLabel: 'Home',
-        }}
-      />
+       
       <Drawer.Screen
         name="Profile"
         component={ProfileScreen}
@@ -74,7 +67,7 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
-        name="AdminPanel"
+        name="Panel"
         component={AdminPanelScreen}
         options={{
           drawerLabel: 'Panel',

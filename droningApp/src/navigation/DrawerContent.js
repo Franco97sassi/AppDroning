@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
     padding: 16,
+    // backgroundColor:"black"
   },
 });
 

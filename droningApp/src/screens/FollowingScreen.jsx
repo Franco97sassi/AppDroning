@@ -16,6 +16,7 @@ const FollowingScreen = () => {
   const [distance, setDistance] = useState(0);
   const [remainingTime, setRemainingTime] = useState(null);
   const [progress, setProgress] = useState(new Animated.Value(0));
+  const [dronePosition, setDronePosition] = useState(0);
 
   useEffect(() => {
     const initializeSimulation = async () => {
@@ -24,20 +25,18 @@ const FollowingScreen = () => {
       const deliveryCoords = await geocodeAddress(deliveryAddress);
 
       if (startCoords && pickupCoords && deliveryCoords) {
-        setStatus('Buscando'); // Cambiar el estado a 'Buscando'
+        setStatus('Buscando');
         const totalDistance = calculateDistance(pickupCoords, deliveryCoords);
         setDistance(totalDistance);
 
-        // Asumimos una velocidad promedio de 10 m/s (36 km/h)
         const speed = 10; // m/s
         const estimatedTime = totalDistance / speed; // en segundos
         setRemainingTime(estimatedTime);
 
         moveToCoords(startCoords, pickupCoords, () => {
-          setStatus('En camino'); // Cambiar el estado a 'En camino'
+          setStatus('En camino');
           moveToCoords(pickupCoords, deliveryCoords, async () => {
-            setStatus('Completado'); // Cambiar el estado a 'Completado'
-            // Guarda los datos del viaje
+            setStatus('Completado');
             const travelData = {
               pickupAddress,
               deliveryAddress,
@@ -48,8 +47,8 @@ const FollowingScreen = () => {
             await saveTravelData(travelData);
 
             setTimeout(() => {
-              navigation.navigate('Arrival'); // Redirige a ArrivalScreen
-            }, 3000); // Espera 3 segundos antes de redirigir
+              navigation.navigate('Arrival');
+            }, 3000);
           });
         });
       } else {
@@ -71,20 +70,19 @@ const FollowingScreen = () => {
           }
           return prev - 1;
         });
-      }, 1000); // Actualizar cada segundo
+      }, 1000);
     }
 
-    // Animar la barra de progreso según el estado
     let progressEndValue;
     switch (status) {
       case 'Buscando':
-        progressEndValue = 1 / 3; // 33%
+        progressEndValue = 1 / 3;
         break;
       case 'En camino':
-        progressEndValue = 2 / 3; // 67%
+        progressEndValue = 2 / 3;
         break;
       case 'Completado':
-        progressEndValue = 1; // 100%
+        progressEndValue = 1;
         break;
       default:
         progressEndValue = 0;
@@ -93,7 +91,7 @@ const FollowingScreen = () => {
 
     Animated.timing(progress, {
       toValue: progressEndValue,
-      duration: 500, // Duración de la animación
+      duration: 500,
       useNativeDriver: false,
     }).start();
 
@@ -107,24 +105,40 @@ const FollowingScreen = () => {
     let currentStep = 0;
     setTraveledPath([startCoords]);
     setRemainingPath([startCoords, endCoords]);
-
+  
     const interval = setInterval(() => {
       if (currentStep < steps) {
+        const progress = currentStep / steps;
         const newCoords = {
           latitude: startCoords.latitude + stepLat * currentStep,
-          longitude: startCoords.longitude + stepLng * currentStep
+          longitude: startCoords.longitude + stepLng * currentStep,
         };
-        setDroneCoords(newCoords);
+  
+        // Aplicar un offset para crear un espacio vacío entre las líneas
+        const offset = 0.0009; // Ajusta este valor para crear el espacio vacío deseado (equivalente a ~100 metros)
+        const adjustedCoords = {
+          latitude: newCoords.latitude,
+          longitude: newCoords.longitude + offset,
+        };
+  
+        setDroneCoords(adjustedCoords);
+        setDronePosition(progress);
         setTraveledPath(prevPath => [...prevPath, newCoords]);
-        setRemainingPath([newCoords, endCoords]);
+  
+        // Asegúrate de eliminar la línea azul al llegar a destino
+        if (currentStep === steps - 1) {
+          setRemainingPath([]);
+        } else {
+          setRemainingPath([newCoords, endCoords]);
+        }
+  
         currentStep++;
       } else {
         clearInterval(interval);
         onComplete();
       }
-    }, 100); // Ajusta el intervalo según sea necesario
+    }, 100);
   };
-
   const getCurrentLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -165,6 +179,12 @@ const FollowingScreen = () => {
     return distance;
   };
 
+  const filterPathWithinRadius = (path, droneCoords, radius) => {
+    return path.filter(point => {
+      return calculateDistance(droneCoords, point) > radius;
+    });
+  };
+
   const saveTravelData = async (data) => {
     try {
       const existingData = await AsyncStorage.getItem('travelHistory');
@@ -178,8 +198,8 @@ const FollowingScreen = () => {
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
-    const secs = (seconds % 60).toFixed(2); // Limita a dos decimales
-    return `${mins},${secs}m`;
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
@@ -204,12 +224,12 @@ const FollowingScreen = () => {
             </Marker>
 
             <Polyline
-              coordinates={traveledPath}
+              coordinates={filterPathWithinRadius(traveledPath, droneCoords, 25)}
               strokeColor="red"
               strokeWidth={6}
             />
             <Polyline
-              coordinates={remainingPath}
+              coordinates={remainingPath} // No se filtra la línea azul
               strokeColor="blue"
               strokeWidth={6}
             />
@@ -217,7 +237,6 @@ const FollowingScreen = () => {
         )}
       </MapView>
       <View style={styles.statusContainer}>
-        {/* Barra de Progreso */}
         <View style={styles.progressBar}>
           <Animated.View
             style={[styles.progress, { width: progress.interpolate({
@@ -227,11 +246,10 @@ const FollowingScreen = () => {
           />
         </View>
         <Text style={styles.statusText}>Estado: {status}</Text>
-        {(status === 'Buscando' || status === 'En camino' || status === 'Completado') && (
+        {status === 'En camino' && (
           <>
-            {status === 'Buscando' || status === 'En camino' && remainingTime !== null && (
-              <Text style={styles.arrivalText}>Tiempo de llegada: {formatTime(remainingTime)}</Text>
-            )}
+            <Text style={styles.distanceText}>Distancia: {distance.toFixed(2)} m</Text>
+            <Text style={styles.timeText}>Tiempo restante: {formatTime(remainingTime)}</Text>
           </>
         )}
       </View>
@@ -247,39 +265,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dronImage: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
   },
   statusContainer: {
     position: 'absolute',
-    bottom: 10,
-    left: 10,
-    right: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Fondo semi-transparente
-    padding: 16,
-    alignItems: 'center',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 10,
   },
   progressBar: {
-    width: '100%',
     height: 10,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#ddd',
     borderRadius: 5,
     overflow: 'hidden',
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 10,
   },
   progress: {
     height: '100%',
     backgroundColor: '#76c7c0',
-    borderRadius: 5,
   },
   statusText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  arrivalText: {
-    fontSize: 16,
-    color: 'gray',
+  distanceText: {
+    fontSize: 14,
+  },
+  timeText: {
+    fontSize: 14,
   },
 });
 

@@ -14,7 +14,8 @@ import HeaderLogged from "../components/Headers/HeaderLogged";
 // import RegisterButton from "../Buttons/RegisterButton";
 import CheckBox from 'expo-checkbox';
 import { useNavigation } from "@react-navigation/native";
- 
+import Icon from 'react-native-vector-icons/FontAwesome'; // Importa el ícono de FontAwesome
+
 const ConfirmationScreen = ({ route }) => {
     const [isChecked, setIsChecked] = useState(false);
     const { pickupAddress, deliveryAddress, arrivalTime } = route.params;
@@ -37,13 +38,24 @@ const ConfirmationScreen = ({ route }) => {
         <Text style={styles.title}>Orden #1</Text>
 
         <View style={styles.details}>
-          <Text style={styles.subtitle}>Dron</Text>
+        <Image
+              source={require('../../assets/images/drones.png')} // Imagen del dron
+              style={styles.dronImage}
+            />
+          {/* <Text style={styles.subtitle}>Dron</Text> */}
           <View style={styles.inputContainer}>
             <Text style={styles.subtitleAddress}> 1 </Text>
           </View>
         </View>
         <View style={styles.details}>
-          <Text style={styles.subtitle}>Piloto</Text>
+        <Icon
+              name="user" // Nombre del ícono para el piloto
+              size={30}
+              color="black" // Color del ícono
+              // style={styles.pilotIcon}
+              style={{ marginLeft: 10 }}
+            />
+          {/* <Text style={styles.subtitle}>Piloto</Text> */}
           <View style={styles.inputContainer}>
             <Text style={styles.subtitleAddress}>Juan Doe</Text>
           </View>
@@ -213,7 +225,7 @@ fontSize:18
   },
   cancelButton: {
     borderRadius:20,
-    backgroundColor:"#4682B4",
+    backgroundColor:"white",
     width:335,
     height:51,
      justifyContent: 'center',

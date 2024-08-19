@@ -47,7 +47,8 @@ import HeaderLogged from "../components/Headers/HeaderLogged";
 // import RegisterButton from "../Buttons/RegisterButton";
 import CheckBox from 'expo-checkbox';
 import { useNavigation } from "@react-navigation/native";
- 
+import Icon from 'react-native-vector-icons/Ionicons'; // Importa los íconos
+
 const RequestScreen = ({ route }) => {
     const [isChecked, setIsChecked] = useState(false);
     const { pickupAddress, deliveryAddress,arrivalTime } = route.params;
@@ -71,13 +72,14 @@ const RequestScreen = ({ route }) => {
         <Text style={styles.title}>Detalles</Text>
 
         <View style={styles.details}>
-          <Text style={styles.subtitle}>Punto De Recogida</Text>
+        <Icon name="location-outline" size={24} color="#4682B4" />
           <View style={styles.inputContainer}>
             <Text style={styles.subtitleAddress}>{pickupAddress} </Text>
           </View>
         </View>
         <View style={styles.details}>
-          <Text style={styles.subtitle}>Punto De Entrega</Text>
+        <Icon name="location-outline" size={24} color="#FF6347" />
+
           <View style={styles.inputContainer}>
             <Text style={styles.subtitleAddress}>{deliveryAddress}</Text>
           </View>
@@ -169,7 +171,10 @@ const styles = StyleSheet.create({
   detailsTotal:{
     paddingTop:10,
     flexDirection: "row", alignItems: "center",      
-color:"#4682B4",
+color:"#4682B4", backgroundColor:"white",
+//  borderRadius:20,
+ marginHorizontal: -26,
+paddingHorizontal:26,
     justifyContent: "space-between",
 fontSize:18
   },
@@ -223,8 +228,11 @@ fontSize:18
   },
   priceContainer:{
     height:"12%",
-    // backgroundColor:"cyan",
+     backgroundColor:"white",
+    //  borderRadius:20,
     justifyContent: "space-between",
+    marginHorizontal: -26,
+    paddingHorizontal:26
     // alignItems:"center"
   },
   checkboxContainer: {
@@ -247,7 +255,7 @@ fontSize:18
   },
   cancelButton: {
     borderRadius:20,
-    backgroundColor:"#4682B4",
+    backgroundColor:"white",
     width:335,
     height:51,
      justifyContent: 'center',

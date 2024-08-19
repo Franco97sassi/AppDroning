@@ -21,9 +21,9 @@ const HeaderLogged = () => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row', // Para alinear el ícono y el texto en una fila
-    alignItems: 'center',
-    height: "14%",
-     paddingTop: Constants.statusBarHeight 
+    // alignItems: 'center',
+    height: "10%",
+    //  paddingTop: Constants.statusBarHeight 
   },
   headerText: {
     fontSize: 24,

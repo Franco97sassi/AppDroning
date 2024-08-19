@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { firestore } from '../firebase/firebaseConfig'; // Ruta a tu configuración de Firebase
+import { firestore } from '../firebase/firebaseConfig'; // Asegúrate de que esta ruta sea correcta
 import { collection, onSnapshot } from 'firebase/firestore';
 
 const SettingsScreen = () => {
   const [drones, setDrones] = useState([]);
   const [initialRegion, setInitialRegion] = useState({
-    latitude: -34.6037, // Coordenadas iniciales, por ejemplo, Buenos Aires
+    latitude: -34.6037,
     longitude: -58.3816,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
@@ -33,9 +33,10 @@ const SettingsScreen = () => {
 
     fetchLocation();
 
+    // Obtén una referencia a la colección 'drones'
     const dronesCollection = collection(firestore, 'drones');
 
-    // Escuchar los cambios en tiempo real
+    // Escucha los cambios en tiempo real
     const unsubscribe = onSnapshot(dronesCollection, (snapshot) => {
       const droneList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDrones(droneList);
@@ -47,13 +48,7 @@ const SettingsScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  const renderDroneIcon = () => (
-    <Image
-      source={require('../../assets/images/drones.png')}
-      style={styles.dronImage}
-      resizeMode="contain"
-    />
-  );
+  const droneImage = require('../../assets/images/drones.png');
 
   return (
     <View style={styles.container}>
@@ -70,7 +65,7 @@ const SettingsScreen = () => {
             }}
             title={`Drone ${drone.id}`}
             description={`Has Battery: ${drone.hasBattery ? "Yes" : "No"}, In Route: ${drone.isInRoute ? "Yes" : "No"}`}
-            icon={Image.resolveAssetSource(require('../../assets/images/drones.png')).uri} // Usa la URI de la imagen importada
+            image={droneImage} // Usa el objeto de imagen directamente
           />
         ))}
       </MapView>
@@ -84,10 +79,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-  },
-  dronImage: {
-    width: 20,  // Ajusta el tamaño según sea necesario
-    height: 20, // Ajusta el tamaño según sea necesario
   },
 });
 

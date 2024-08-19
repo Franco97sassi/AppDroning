@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity, Text, Keyboard, Dimensions, Image } from 'react-native';
+import { StyleSheet, TextInput, View, TouchableOpacity, Text, Keyboard, Dimensions } from 'react-native';
 import MapView, { Polyline, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
@@ -132,97 +132,95 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container} keyboardVerticalOffset={Constants.statusBarHeight}>
-      <View style={styles.innerContainer}>
-        {status === 'En camino' && arrivalTime !== null && (
-          <Text style={styles.arrivalTime}>Tiempo de llegada: {formatTime(arrivalTime)}</Text>
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: -32.94682,
+          longitude: -60.63932,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        {currentCoords && pickupCoords && (
+          <Polyline
+            coordinates={[
+              { latitude: currentCoords.latitude, longitude: currentCoords.longitude },
+              { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude }
+            ]}
+            strokeColor="red" // Color de la línea desde la ubicación actual hasta la recogida
+            strokeWidth={2}
+          />
         )}
-        {status === 'Esperando' && (
-          <View style={[styles.inputsContainer, { height: keyboardSpace > 0 ? '50%' : '25%' }]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Ingresar dirección de recogida"
-              value={pickupAddress}
-              onChangeText={setPickupAddress}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingresar dirección de entrega"
-              value={deliveryAddress}
-              onChangeText={setDeliveryAddress}
-            />
-          </View>
+        {pickupCoords && deliveryCoords && (
+          <Polyline
+            coordinates={[
+              { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
+              { latitude: deliveryCoords.latitude, longitude: deliveryCoords.longitude }
+            ]}
+            strokeColor="red" // Color de la línea desde la recogida hasta la entrega
+            strokeWidth={2}
+          />
         )}
-        <View style={[styles.mapContainer, { height: Dimensions.get('window').height - keyboardSpace - 10 }]}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: -32.94682,
-              longitude: -60.63932,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            {currentCoords && pickupCoords && (
-              <Polyline
-                coordinates={[
-                  { latitude: currentCoords.latitude, longitude: currentCoords.longitude },
-                  { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude }
-                ]}
-                strokeColor="red" // Color de la línea desde la ubicación actual hasta la recogida
-                strokeWidth={2}
-              />
-            )}
-            {pickupCoords && deliveryCoords && (
-              <Polyline
-                coordinates={[
-                  { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
-                  { latitude: deliveryCoords.latitude, longitude: deliveryCoords.longitude }
-                ]}
-                strokeColor="red" // Color de la línea desde la recogida hasta la entrega
-                strokeWidth={2}
-              />
-            )}
-            {pickupCoords && (
-              <Marker coordinate={pickupCoords} title="Recogida" />
-            )}
-            {deliveryCoords && (
-              <Marker coordinate={deliveryCoords} title="Entrega" />
-            )}
-            {currentCoords && (
-              <Marker
-                coordinate={currentCoords}
-                title="Ubicación Actual"
-                image={require('../../assets/images/drones.png')} // Ruta de la imagen del dron
-                style={styles.dron}
-              />
-            )}
-          </MapView>
-          
-          {status !== 'Entregado' && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleRequestPress}
-            >
-              <Text style={styles.buttonText}>Solicitar</Text>
-            </TouchableOpacity>
-          )}
-
-          {status === 'Entregado' && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                navigation.navigate('Request', {
-                  pickupAddress: pickupAddress,
-                  deliveryAddress: deliveryAddress,
-                  arrivalTime: formatTime(arrivalTime),
-                });
-              }}
-            >
-              <Text style={styles.buttonText}>Pagar</Text>
-            </TouchableOpacity>
-          )}
+        {pickupCoords && (
+          <Marker coordinate={pickupCoords} title="Recogida" />
+        )}
+        {deliveryCoords && (
+          <Marker coordinate={deliveryCoords} title="Entrega" />
+        )}
+        {currentCoords && (
+          <Marker
+            coordinate={currentCoords}
+            title="Ubicación Actual"
+            image={require('../../assets/images/drones.png')} // Ruta de la imagen del dron
+            style={styles.dron}
+          />
+        )}
+      </MapView>
+      
+      {status === 'En camino' && arrivalTime !== null && (
+        <Text style={styles.arrivalTime}>Tiempo de llegada: {formatTime(arrivalTime)}</Text>
+      )}
+      
+      {status === 'Esperando' && (
+        <View style={[styles.inputsContainer, { height: keyboardSpace > 0 ? '50%' : '25%' }]}>
+          <TextInput
+            style={styles.input}
+            placeholder="Ingresar dirección de recogida"
+            value={pickupAddress}
+            onChangeText={setPickupAddress}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Ingresar dirección de entrega"
+            value={deliveryAddress}
+            onChangeText={setDeliveryAddress}
+          />
         </View>
-      </View>
+      )}
+
+      {status !== 'Entregado' && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRequestPress}
+        >
+          <Text style={styles.buttonText}>Solicitar</Text>
+        </TouchableOpacity>
+      )}
+
+      {status === 'Entregado' && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            navigation.navigate('Request', {
+              pickupAddress: pickupAddress,
+              deliveryAddress: deliveryAddress,
+              arrivalTime: formatTime(arrivalTime),
+            });
+          }}
+        >
+          <Text style={styles.buttonText}>Pagar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -231,10 +229,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Constants.statusBarHeight,
-  },
-  innerContainer: {
-    flex: 1,
-    position: 'relative',
   },
   arrivalTime: {
     backgroundColor: '#4682B4',
@@ -249,9 +243,14 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   inputsContainer: {
-    flex: 1,
-    maxHeight: '35%',
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
     padding: 10,
+    // backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 10,
+    zIndex: 2,
   },
   input: {
     borderWidth: 1,
@@ -259,32 +258,30 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+    backgroundColor: 'white',
   },
-  mapContainer: {
-    flex: 1,
-    position: 'relative',
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
   dron:{
     width:50,
     height:50
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
   button: {
-    backgroundColor: '#4682B4',
-    padding: 15,
-    borderRadius: 5,
     position: 'absolute',
-    bottom: 10,
-    right: 10,
-    elevation: 5,
+    bottom: 40,
+    right: 20, // Cambia `left` a `right` para ubicar el botón a la derecha
+    backgroundColor: '#4682B4',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    zIndex: 2,
   },
   buttonText: {
     color: 'white',
-    textAlign: 'center',
     fontWeight: 'bold',
   },
 });
 
 export default HomeScreen;
+ 
