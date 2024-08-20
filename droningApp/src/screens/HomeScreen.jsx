@@ -4,6 +4,7 @@ import MapView, { Polyline, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Importa el componente de íconos
 
 const HomeScreen = () => {
   const [pickupAddress, setPickupAddress] = useState('');
@@ -129,7 +130,15 @@ const HomeScreen = () => {
     const seconds = Math.floor((time % 60000) / 1000);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-
+  const resetMap = () => {
+    setPickupAddress('');
+    setDeliveryAddress('');
+    setPickupCoords(null);
+    setDeliveryCoords(null);
+    setStatus('Esperando');
+    setArrivalTime(null);
+  };
+  
   return (
     <View style={styles.container} keyboardVerticalOffset={Constants.statusBarHeight}>
       <MapView
@@ -183,18 +192,24 @@ const HomeScreen = () => {
       
       {status === 'Esperando' && (
         <View style={[styles.inputsContainer, { height: keyboardSpace > 0 ? '50%' : '25%' }]}>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresar dirección de recogida"
-            value={pickupAddress}
-            onChangeText={setPickupAddress}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresar dirección de entrega"
-            value={deliveryAddress}
-            onChangeText={setDeliveryAddress}
-          />
+           <View style={styles.inputContainer}>
+            <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Ingresar dirección de recogida"
+              value={pickupAddress}
+              onChangeText={setPickupAddress}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Ingresar dirección de entrega"
+              value={deliveryAddress}
+              onChangeText={setDeliveryAddress}
+            />
+          </View>
         </View>
       )}
 
@@ -215,7 +230,9 @@ const HomeScreen = () => {
               pickupAddress: pickupAddress,
               deliveryAddress: deliveryAddress,
               arrivalTime: formatTime(arrivalTime),
-            });
+            })
+            resetMap()
+            ;
           }}
         >
           <Text style={styles.buttonText}>Pagar</Text>
@@ -244,7 +261,7 @@ const styles = StyleSheet.create({
   },
   inputsContainer: {
     position: 'absolute',
-    top: 10,
+    top: 30,
     left: 10,
     right: 10,
     padding: 10,
@@ -255,7 +272,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 100,
     padding: 10,
     marginBottom: 10,
     backgroundColor: 'white',
@@ -280,6 +297,23 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    margin: 10,
+    elevation: 5,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    paddingHorizontal: 10,
+  },
+  searchIcon: {
+    marginHorizontal: 10,
+
   },
 });
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, Animated } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated, TouchableOpacity, Pressable, TouchableHighlight } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Importa el ícono
 
 const FollowingScreen = () => {
   const route = useRoute();
@@ -40,7 +41,7 @@ const FollowingScreen = () => {
             const travelData = {
               pickupAddress,
               deliveryAddress,
-              distance,
+              distance:totalDistance,
               estimatedTime,
               completedAt: new Date().toISOString(),
             };
@@ -252,6 +253,9 @@ const FollowingScreen = () => {
             <Text style={styles.timeText}>Tiempo restante: {formatTime(remainingTime)}</Text>
           </>
         )}
+                {/* <TouchableHighlight style={styles.button} onPress={() => alert('Button Pressed')}>
+                <Icon name="help-outline" size={30} color="#fff" />
+                </TouchableHighlight> */}
       </View>
     </View>
   );
@@ -270,11 +274,15 @@ const styles = StyleSheet.create({
   },
   statusContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    top: 10,
+    left: 10,
+    right: 10,
     padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    elevation: 5,
+    zIndex: 1,
+    alignItems:"center"
   },
   progressBar: {
     height: 10,
@@ -290,12 +298,20 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign:"center"
   },
   distanceText: {
     fontSize: 14,
   },
   timeText: {
     fontSize: 14,
+  },
+  helpButton: {
+    padding: 10,
+    backgroundColor: '#007bff', // Color de fondo del botón
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 const NotificationsScreen = () => {
@@ -9,6 +10,34 @@ const NotificationsScreen = () => {
 
   const navigation = useNavigation();
 
+  useEffect(() => {
+    const loadNotificationSettings = async () => {
+      try {
+        const smsEnabled = await AsyncStorage.getItem('isSmsEnabled');
+        const whatsappEnabled = await AsyncStorage.getItem('isWhatsappEnabled');
+        const emailEnabled = await AsyncStorage.getItem('isEmailEnabled');
+
+        if (smsEnabled !== null) setIsSmsEnabled(JSON.parse(smsEnabled));
+        if (whatsappEnabled !== null) setIsWhatsappEnabled(JSON.parse(whatsappEnabled));
+        if (emailEnabled !== null) setIsEmailEnabled(JSON.parse(emailEnabled));
+      } catch (error) {
+        console.error('Error loading notification settings:', error);
+      }
+    };
+
+    loadNotificationSettings();
+  }, []);
+
+  const saveNotificationSettings = async () => {
+    try {
+      await AsyncStorage.setItem('isSmsEnabled', JSON.stringify(isSmsEnabled));
+      await AsyncStorage.setItem('isWhatsappEnabled', JSON.stringify(isWhatsappEnabled));
+      await AsyncStorage.setItem('isEmailEnabled', JSON.stringify(isEmailEnabled));
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+    }
+  };
+
   const toggleSwitch = (type) => {
     if (type === 'sms') {
       setIsSmsEnabled(previousState => !previousState);
@@ -17,6 +46,7 @@ const NotificationsScreen = () => {
     } else if (type === 'email') {
       setIsEmailEnabled(previousState => !previousState);
     }
+    saveNotificationSettings(); // Guardar los ajustes cada vez que cambien
   };
 
   return (

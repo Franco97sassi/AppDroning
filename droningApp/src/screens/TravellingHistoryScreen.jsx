@@ -24,11 +24,17 @@ const TravellingHistoryScreen = () => {
     <View style={styles.itemContainer}>
       <Text style={styles.text}>Recogida: {item.pickupAddress}</Text>
       <Text style={styles.text}>Entrega: {item.deliveryAddress}</Text>
-      {/* <Text style={styles.text}>Distancia: {item.distance.toFixed(2)} m</Text> */}
+      <Text style={styles.text}>Distancia: {item.distance.toFixed(2)} m</Text>
       <Text style={styles.text}>Tiempo estimado: {formatTime(item.estimatedTime)}</Text>
       <Text style={styles.text}>Finalizado: {new Date(item.completedAt).toLocaleString()}</Text>
     </View>
   );
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
 
   return (
     <View style={styles.container}>
@@ -40,12 +46,6 @@ const TravellingHistoryScreen = () => {
       />
     </View>
   );
-};
-
-const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
 const styles = StyleSheet.create({
@@ -67,3 +67,4 @@ const styles = StyleSheet.create({
 });
 
 export default TravellingHistoryScreen;
+ 

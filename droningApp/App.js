@@ -27,7 +27,7 @@ export default function App() {
   return (
     //  <View style={styles.container}>
         <AppNavigator/>
-
+// <Text>  Hola </Text>
         // </View>
   );
 }

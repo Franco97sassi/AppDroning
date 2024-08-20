@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     height: "10%",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    alignItems:"center"
   },
   title: {
     fontSize: 24,

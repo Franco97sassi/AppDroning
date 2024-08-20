@@ -51,10 +51,10 @@ const RegisterScreen = () => {
     >
       <Header text="Skip" />
       <View style={styles.titleSection}>
-        <Text style={styles.title}>Create an Account</Text>
+        <Text style={styles.title}>Crearse una cuenta</Text>
         <Text></Text>
       </View>
-      <View style={[styles.inputsSection, { height: keyboardVisible ? "56%" : "33%" }]}>
+      <View style={[styles.inputsSection, { height: keyboardVisible ? "50%" : "33%" }]}>
         <View>
           <Text style={styles.inputTitle}>Email</Text>
           <TextInput
@@ -94,6 +94,9 @@ const RegisterScreen = () => {
         <View style={styles.buttonsSection}>
           <RegisterButton text="Create an Account" onPress={handleRegister} />
           <LoginButton onPress={() => navigation.navigate('Login')} />
+        
+        <Text></Text>
+        <Text></Text>
         </View>
       )}
       <View style={styles.empty}></View>
@@ -110,7 +113,8 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     height: "10%",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    alignItems:"center"
   },
   title: {
     fontSize: 24,
@@ -126,7 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   buttonsSection: {
-    height: "25%",
+    height: "35%",
     justifyContent: "space-evenly",
     alignItems: "center"
   },
@@ -141,6 +145,6 @@ const styles = StyleSheet.create({
     paddingLeft: 23
   },
   empty: {
-    height: "20%"
+    height: "10%"
   }
 });

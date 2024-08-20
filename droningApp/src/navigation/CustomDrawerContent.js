@@ -71,8 +71,7 @@ const CustomDrawerContent = (props) => {
 const styles = StyleSheet.create({
   headerContainer: {
     padding: 20,
-    backgroundColor: '#f5f5f5',
-    borderBottomWidth: 1,
+    backgroundColor: '#f5f5f5',    borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     marginBottom: 10,
   },
