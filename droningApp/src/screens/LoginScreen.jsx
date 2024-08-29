@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, View, Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
 import Constants from "expo-constants";
 import RegisterButton from '../components/Buttons/RegisterButton';
 import LoginButton from '../components/Buttons/LoginButton';
-import GoogleButton from '../components/Buttons/GoogleButton';
-import FacebookButton from '../components/Buttons/FacebookButton';
-
 import { auth } from '../firebase/firebaseConfig'; // Asegúrate de que la configuración de Firebase esté correcta
-import { FacebookAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
+import { FacebookAuthProvider, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import * as Facebook from 'expo-facebook';
+// import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import * as Google from 'expo-auth-session/providers/google';
+import { useIdTokenAuthRequest } from 'expo-auth-session';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -19,20 +19,9 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [buttonsVisible, setButtonsVisible] = useState(true);
-
+   
   useEffect(() => {
-    const initFacebook = async () => {
-      try {
-        await Facebook.initializeAsync({
-          appId: '846810814095126', // Reemplaza con tu appId
-        });
-      } catch (error) {
-        console.error("Error initializing Facebook SDK:", error);
-      }
-    };
-
-    initFacebook();
-
+     
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true);
       setButtonsVisible(false); // Oculta los botones cuando el teclado está visible
@@ -47,7 +36,23 @@ const LoginScreen = () => {
       keyboardDidShowListener.remove();
     };
   }, []);
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '129885057989-52mdshqs60qmrte7q45qht1j1bsoucja.apps.googleusercontent.com', // desde tu consola de Google Cloud
+  });
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
 
+      const credential = firebase.auth.GoogleAuthProvider.credential(id_token);
+      firebase.auth().signInWithCredential(credential)
+        .then(user => {
+          console.log('Usuario autenticado:', user);
+        })
+        .catch(error => {
+          console.error('Error al autenticar:', error);
+        });
+    }
+  }, [response]);
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -60,29 +65,7 @@ const LoginScreen = () => {
     }
   };
 
-  const signInWithFB = async () => {
-    try {
-      const result = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ['public_profile', 'email'],
-      });
-
-      if (result.type === 'success') {
-        const { token } = result;
-
-        const credential = FacebookAuthProvider.credential(token);
-        await signInWithCredential(auth, credential);
-        
-        Alert.alert('Success', 'Logged in with Facebook successfully');
-        navigation.navigate('Home'); // Cambia 'Home' por la pantalla a la que desees navegar después del login
-      } else {
-        Alert.alert('Error', 'Facebook login failed');
-      }
-    } catch (error) {
-      console.error('Error during Facebook login:', error);
-      Alert.alert('Error', 'Facebook login failed');
-    }
-  };
-
+  
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -125,12 +108,15 @@ const LoginScreen = () => {
           <LoginButton onPress={handleLogin} />
           <RegisterButton text="Create an Account" onPress={() => navigation.navigate('Register')} />
           <View style={styles.links}>
-            <TouchableOpacity onPress={signInWithFB}>
+            {/* <TouchableOpacity onPress={signInWithFB}>
               <Image style={styles.logo} source={require('../assets/images/facebook.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { /* Add your Google login function here */ }}>
-              <Image style={styles.logo} source={require('../assets/images/googleIcon.png')} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            {/* <TouchableOpacity onPress={signInWithGoogle}>
+  <Image style={styles.logo} source={require('../assets/images/googleIcon.png')} />
+</TouchableOpacity> */}
+ <TouchableOpacity onPress={()=> promptAsync()}>
+  <Image style={styles.logo} source={require('../assets/images/googleIcon.png')} />
+</TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('RecoveryPassword')}>
             <Text style={styles.recoverPasswordText}>Olvidaste tu contraseña?</Text>
@@ -152,12 +138,13 @@ const styles = StyleSheet.create({
   titleSection: {
     height: "10%",
     justifyContent: "space-between",
-    alignItems:"center"
+    alignItems:"center",
+    color:""
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1c1c1c"
+    color: "#4682B4"
   },
   subtitle: {
     fontSize: 14,
@@ -174,7 +161,8 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     paddingLeft: 23,
-    marginBottom: 10
+    marginBottom: 10,
+    color:"#4682B4"
   },
   inputStyle: {
     backgroundColor: "white",

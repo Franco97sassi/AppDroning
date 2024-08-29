@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
   },
  
 textButtonLogin:{
-  color:"red"
+  color:"#4682B4"
 },
 })

@@ -9,6 +9,7 @@ import TravellingHistoryScreen from '../screens/TravellingHistoryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AdminPanelScreen from '../screens/AdminPanelScreen';
 import CustomDrawerContent from './CustomDrawerContent';
+import AdminPanelRestaurants from '../screens/AdminPanelRestaurants';
 
 const Drawer = createDrawerNavigator();
 
@@ -71,6 +72,13 @@ const DrawerNavigator = () => {
         component={AdminPanelScreen}
         options={{
           drawerLabel: 'Panel',
+        }}
+      />
+       <Drawer.Screen
+        name="Panel Restaurants"
+        component={AdminPanelRestaurants}
+        options={{
+          drawerLabel: 'Panel rest',
         }}
       />
     </Drawer.Navigator>

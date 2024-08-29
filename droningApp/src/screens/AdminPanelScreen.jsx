@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
-import { firestore } from '../firebase/firebaseConfig'; // Ruta a tu configuración de Firebase
+import { firestore } from '../firebase/firebaseConfig';  
 import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import Constants from "expo-constants";
 
@@ -10,8 +10,7 @@ const AdminPanelScreen = ({ navigation }) => {
   useEffect(() => {
     const dronesCollection = collection(firestore, 'drones');
 
-    // Escuchar los cambios en tiempo real
-    const unsubscribe = onSnapshot(dronesCollection, (snapshot) => {
+     const unsubscribe = onSnapshot(dronesCollection, (snapshot) => {
       const droneList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDrones(droneList);
     }, (error) => {
@@ -19,8 +18,7 @@ const AdminPanelScreen = ({ navigation }) => {
       Alert.alert("Error", "Failed to fetch drones.");
     });
 
-    // Limpiar el listener cuando el componente se desmonte
-    return () => unsubscribe();
+     return () => unsubscribe();
   }, []);
 
   const handleDelete = async (id) => {
@@ -37,7 +35,6 @@ const AdminPanelScreen = ({ navigation }) => {
       <FlatList
   data={drones}
   keyExtractor={(item) => {
-    console.log(`Key for item: ${item.id}`); // Verifica los valores de las claves
     return item.id;
   }}
   renderItem={({ item }) => (

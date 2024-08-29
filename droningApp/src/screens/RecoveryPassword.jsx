@@ -80,8 +80,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1c1c1c"
-  },
+    color:"#4682B4"
+    },
   inputsSection: {
     height: "33%",
     justifyContent: "space-around"
@@ -93,7 +93,8 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     paddingLeft: 23,
-    marginBottom: 10
+    marginBottom: 10,
+    color:"#4682B4"
   },
   inputStyle: {
     backgroundColor: "white",

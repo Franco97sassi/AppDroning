@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1c1c1c"
+     color:"#4682B4"
   },
   subtitle: {
     fontSize: 14,
@@ -136,7 +136,8 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     paddingLeft: 23,
-    marginBottom: 10
+    marginBottom: 10,
+    color:"#4682B4"
   },
   inputStyle: {
     backgroundColor: "white",

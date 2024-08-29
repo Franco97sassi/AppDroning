@@ -23,6 +23,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import AdminPanelScreen from '../screens/AdminPanelScreen';
 import { useAuthState } from '../hooks/useAuthState';
 import PasswordResetScreen from '../screens/RecoveryPassword';
+import AdminPanelRestaurants from '../screens/AdminPanelRestaurants';
 
 // Stack Navigator
 const Stack = createNativeStackNavigator();
@@ -97,6 +98,8 @@ const DrawerNavigator = () => {
       <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
       <Stack.Screen name="AddCard" component={AddCardScreen} />
       <Drawer.Screen name="Panel" component={AdminPanelScreen} />
+      <Drawer.Screen name="PanelRestaurants" component={AdminPanelRestaurants} />
+
     </Drawer.Navigator>
   );
 };

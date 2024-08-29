@@ -18,7 +18,7 @@ const Header = ({ underline, text  }) => {
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.rightButton}>
-        <Text style={[styles.skip, underline && styles.underline]}>{text}</Text>
+        {/* <Text style={[styles.skip, underline && styles.underline]}>{text}</Text> */}
       </TouchableOpacity>
     </View>
   );

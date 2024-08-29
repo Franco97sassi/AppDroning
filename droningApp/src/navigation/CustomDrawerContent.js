@@ -63,6 +63,13 @@ const CustomDrawerContent = (props) => {
           )}
           onPress={() => navigation.navigate('Panel')}
         />
+        <DrawerItem
+          label="Panel Restaurants"
+          icon={({ color, size }) => (
+            <MaterialIcons name="dashboard" size={size} color={color} />
+          )}
+          onPress={() => navigation.navigate('PanelRestaurants')}
+        />
       </View>
     </DrawerContentScrollView>
   );

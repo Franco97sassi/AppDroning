@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity, Text, Keyboard, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, View, TouchableOpacity, Text, Keyboard, TouchableHighlight  } from 'react-native';
 import MapView, { Polyline, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importa el componente de íconos
+import Icon from 'react-native-vector-icons/MaterialIcons';  
+import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { firestore } from '../firebase/firebaseConfig';  
 
 const HomeScreen = () => {
   const [pickupAddress, setPickupAddress] = useState('');
@@ -14,7 +16,13 @@ const HomeScreen = () => {
   const [pickupCoords, setPickupCoords] = useState(null);
   const [deliveryCoords, setDeliveryCoords] = useState(null);
   const [currentCoords, setCurrentCoords] = useState(null);
+  const [restaurants, setRestaurants] = useState([]);
+    const [drones, setDrones] = useState([]);
+
   const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [showCurrentLocationButton, setShowCurrentLocationButton] = useState(false);
+  const [hideCurrentLocationMarker, setHideCurrentLocationMarker] = useState(false); // Nuevo estado
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -63,8 +71,8 @@ const HomeScreen = () => {
         setDeliveryCoords(deliveryCoords);
 
         const totalDistance = calculateDistance(pickupCoords, deliveryCoords);
-        const averageSpeed = 50; // Velocidad promedio en metros por minuto
-        const totalDuration = (totalDistance / averageSpeed) * 60000; // Tiempo total en ms
+        const averageSpeed = 50;  
+        const totalDuration = (totalDistance / averageSpeed) * 60000;  
 
         const endTime = Date.now() + totalDuration;
 
@@ -81,7 +89,37 @@ const HomeScreen = () => {
       calculateEstimatedTime();
     }
   }, [status]);
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      const restaurantsCollection = collection(firestore, 'restaurants');
+      const unsubscribe = onSnapshot(restaurantsCollection, (snapshot) => {
+        const restaurantList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setRestaurants(restaurantList);
+      }, (error) => {
+        console.error("Error fetching restaurants: ", error);
+        alert('No se pudieron obtener los restaurantes.');
+      });
 
+      return () => unsubscribe();
+    };
+
+    fetchRestaurants();
+  }, []);
+  useEffect(() => {
+    const fetchDrones = async () => {
+      const dronesCollection = collection(firestore, 'drones');
+      const unsubscribe = onSnapshot(dronesCollection, (snapshot) => {
+        const dronesList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setDrones(dronesList);
+      }, (error) => {
+        console.error("Error fetching restaurants: ", error);
+        alert('No se pudieron obtener los restaurantes.');
+      });
+
+      return () => unsubscribe();
+    };
+    fetchDrones();
+  }, []);
   const handleRequestPress = async () => {
     const pickupCoords = await geocodeAddress(pickupAddress);
     const deliveryCoords = await geocodeAddress(deliveryAddress);
@@ -115,12 +153,12 @@ const HomeScreen = () => {
     const lat2 = coord2.latitude;
     const lon2 = coord2.longitude;
 
-    const R = 6371; // Radio de la Tierra en kilómetros
+    const R = 6371;  
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c * 1000; // Distancia en metros
+    const distance = R * c * 1000;  
 
     return distance;
   };
@@ -138,53 +176,115 @@ const HomeScreen = () => {
     setStatus('Esperando');
     setArrivalTime(null);
   };
-  
+  const reverseGeocodeLocation = async (coords) => {
+    try {
+      const results = await Location.reverseGeocodeAsync(coords);
+       if (results.length > 0) {
+        const result = results[0];
+        return `${result.street},${result.name}, ${result.city}, ${result.region}`;
+      }
+      return null;
+    } catch (error) {
+      alert('Error al obtener la dirección.');
+    }
+    return null;
+  };
+  const setCurrentLocationAsDelivery=async()=>{
+    if(currentCoords){
+      const address=await reverseGeocodeLocation(currentCoords)
+      setDeliveryAddress(address);
+      setShowCurrentLocationButton(false)
+    }else{
+      alert("No se puedo obtener la ubicación actual")
+    }
+  }
+
+  const handleRestaurantPress = async (restaurant) => {
+    const address = `${restaurant.address}, Rosario`;
+
+    // const address = `${restaurant.address}, ${restaurant.street}, ${restaurant.city}, ${restaurant.region}`;
+    setPickupAddress(address);
+    
+  };
+  const firstRestaurant = restaurants[4];
+  const firstDrone = drones[2];
   return (
-    <View style={styles.container} keyboardVerticalOffset={Constants.statusBarHeight}>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: -32.94682,
-          longitude: -60.63932,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+    <View style={styles.container}  >
+     <MapView
+  style={styles.map}
+  initialRegion={{
+    latitude: -32.94682,
+    longitude: -60.63932,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  }}
+  showsCompass={false}  // Desactiva la brújula
+  showsScale={false}    // Desactiva la escala
+  showsTraffic={false}  // Desactiva la visibilidad del tráfico
+  showsIndoors={false}  // Desactiva la visibilidad de interiores
+  showsIndoorMaps={false}     
+>
+  {firstDrone && pickupCoords && (
+    <Polyline
+      coordinates={[
+        { latitude: firstDrone.latitude, longitude: firstDrone.longitude },
+        { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude }
+      ]}
+      strokeColor="red"
+      strokeWidth={2}
+    />
+  )}
+
+  {pickupCoords && deliveryCoords && (
+    <>
+      <Polyline
+        coordinates={[
+          { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
+          { latitude: deliveryCoords.latitude, longitude: deliveryCoords.longitude }
+        ]}
+        strokeColor="red"
+        strokeWidth={2}
+      />
+      <Marker
+        coordinate={deliveryCoords}
+        pinColor="blue"
       >
-        {currentCoords && pickupCoords && (
-          <Polyline
-            coordinates={[
-              { latitude: currentCoords.latitude, longitude: currentCoords.longitude },
-              { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude }
-            ]}
-            strokeColor="red" // Color de la línea desde la ubicación actual hasta la recogida
-            strokeWidth={2}
-          />
-        )}
-        {pickupCoords && deliveryCoords && (
-          <Polyline
-            coordinates={[
-              { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
-              { latitude: deliveryCoords.latitude, longitude: deliveryCoords.longitude }
-            ]}
-            strokeColor="red" // Color de la línea desde la recogida hasta la entrega
-            strokeWidth={2}
-          />
-        )}
-        {pickupCoords && (
-          <Marker coordinate={pickupCoords} title="Recogida" />
-        )}
-        {deliveryCoords && (
-          <Marker coordinate={deliveryCoords} title="Entrega" />
-        )}
-        {currentCoords && (
-          <Marker
-            coordinate={currentCoords}
-            title="Ubicación Actual"
-            image={require('../../assets/images/drones.png')} // Ruta de la imagen del dron
-            style={styles.dron}
-          />
-        )}
-      </MapView>
+        <Icon name="home" size={30} color="blue" />
+      </Marker>
+    </>
+  )}
+
+  {/* {pickupCoords && (
+    <Marker coordinate={pickupCoords} title="Recogida" />
+  )}
+
+  {deliveryCoords && (
+    <Marker coordinate={deliveryCoords} title="Entrega" />
+  )} */}
+
+  {firstDrone && (
+    <Marker
+      coordinate={{ latitude: firstDrone.latitude, longitude: firstDrone.longitude }}
+      title={`Drone ${firstDrone.id}`}
+      description={`Estado: ${firstDrone.status}`}
+      image={require('../../assets/images/drones.png')}
+      pinColor="blue"
+    />
+  )}
+
+  {firstRestaurant && (
+    <Marker
+      coordinate={{ latitude: firstRestaurant.latitude, longitude: firstRestaurant.longitude }}
+      title={`Restaurante ${firstRestaurant.id}`}
+      description={`Cocina: ${firstRestaurant.cuisine}`}
+      onPress={() => handleRestaurantPress(firstRestaurant)}
+      pinColor="green"
+    >
+      <Icon name="restaurant" size={30} color="#ff6347" />
+    </Marker>
+  )}
+</MapView>
+
       
       {status === 'En camino' && arrivalTime !== null && (
         <Text style={styles.arrivalTime}>Tiempo de llegada: {formatTime(arrivalTime)}</Text>
@@ -207,9 +307,18 @@ const HomeScreen = () => {
               style={styles.input}
               placeholder="Ingresar dirección de entrega"
               value={deliveryAddress}
-              onChangeText={setDeliveryAddress}
+              onChangeText={(text)=>{ 
+                setDeliveryAddress(text);
+              setShowCurrentLocationButton(text.length>0); }
+              }
             />
+             {showCurrentLocationButton &&(
+            <TouchableHighlight  style={styles.currentLocationButton} onPress={setCurrentLocationAsDelivery}>
+    <Icon name="location-on" size={24} color="#fff" />
+    </TouchableHighlight>
+          )}
           </View>
+          
         </View>
       )}
 
@@ -287,7 +396,7 @@ const styles = StyleSheet.create({
   button: {
     position: 'absolute',
     bottom: 40,
-    right: 20, // Cambia `left` a `right` para ubicar el botón a la derecha
+    right: 20,  
     backgroundColor: '#4682B4',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -314,6 +423,16 @@ const styles = StyleSheet.create({
   searchIcon: {
     marginHorizontal: 10,
 
+  },
+  currentLocationButton: {
+    backgroundColor: '#4CAF50',
+    paddingRight: 0,
+    // padding:10,
+    borderRadius: 50,  
+    // marginTop: 10,
+    marginRight:10,
+    alignItems: 'center', // Centra el ícono dentro del botón
+  justifyContent: 'center', // Centra el ícono dentro del botón
   },
 });
 

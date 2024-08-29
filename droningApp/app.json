@@ -12,21 +12,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "config": {
-        "facebookAppId": "846810814095126",
-        "facebookDisplayName": "LoginDroning"
-      },
+      "supportsTablet": true 
+      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "config": {
-        "facebookAppId": "846810814095126",
-        "facebookDisplayName": "LoginDroning"
-      },
+       
       "intentFilters": [
         {
           "action": "VIEW",
@@ -46,8 +40,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-      
+    } ,
+    "scheme": "myapp" 
         
       
     
